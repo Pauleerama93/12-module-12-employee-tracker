@@ -1,7 +1,7 @@
 \c employee_db
 
 INSERT INTO department (name)
-VALUES ('HR'),
+VALUES ('Management'),
 ('Research & Development'),
 ('Sales'),
 ('Warehouse');
