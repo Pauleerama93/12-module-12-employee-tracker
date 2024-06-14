@@ -1,7 +1,9 @@
-const inquirer = require('inquirer');
-const { Pool } = require('pg');
-require('dotenv').config()
+const inquirer = require('inquirer'); // For interactive command-line user interfaces
+const { Pool } = require('pg'); // For interacting with the PostgreSQL database
+require('dotenv').config() // For loading environment variables from a .env file
 
+
+//// Create a new pool of connections to the PostgreSQL database using environment variables for configuration
 const pool = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -10,16 +12,19 @@ const pool = new Pool({
     port: 5432
     
 },
+    // Callback to indicate successful connection to the database
     console.log("Connected to the database")
 );
-
+// Establish a connection to the database
 pool.connect();
 
+// Function to gracefully quit the application
 function quit() {
     console.log("Goodbye!");
+    // Exits the Node.js process
     process.exit();
 }
-
+// Function to view all employees
 function viewEmployees() {
     sqlQuery = `SELECT employee.id, employee.first_name, employee.last_name,
              role.title, department.name AS department, role.salary,
@@ -30,11 +35,11 @@ function viewEmployees() {
              JOIN employee manager on employee.manager_id = manager.id;`;
     pool.query(sqlQuery, (err, results) => {
         console.log("\n");
-        console.table(results.rows)
-        loadMainMenu();
+        console.table(results.rows)// Function to view all employees
+        loadMainMenu();// Load the main menu after displaying the results
     })
 }
-
+// Function to view employees by department
 function viewEmployeesByDepartment() {
     let sqlQuery = `SELECT * FROM department`;
     pool.query(sqlQuery, (err, results) => {
@@ -68,7 +73,7 @@ function viewEmployeesByDepartment() {
         });
     });
 }
-
+// Function to view employees by manager
 function viewEmployeesByMananger() {
     let sqlQuery = `SELECT * FROM employee`;
     pool.query(sqlQuery, (err, results) => {
@@ -105,7 +110,7 @@ function viewEmployeesByMananger() {
             });
     });
 }
-
+// Function to add a new employee
 function addEmployee() {
     inquirer.prompt([
         {
@@ -170,7 +175,7 @@ function addEmployee() {
         });
     })
 }
-
+// Function to remove an employee
 function removeEmployee() {
     let sqlQuery = `SELECT * FROM employee`;
     pool.query(sqlQuery, (err, results) => {
@@ -203,7 +208,7 @@ function removeEmployee() {
         });
     });
 }
-
+// Function to update an employee's role
 function updateEmployeeRole() {
     pool.query("SELECT * FROM employee", (err, results) => {
         const employeeChoices = results.rows.map(({ id, first_name, last_name}) => ({
@@ -240,7 +245,7 @@ function updateEmployeeRole() {
         });
     });
 }
-
+// Function to update an employee's manager
 function updateEmployeeManager() {
     pool.query("SELECT * FROM employee", (err, results) => {
         const employeeChoices = results.rows.map(({ id, first_name, last_name }) => ({
@@ -279,7 +284,7 @@ function updateEmployeeManager() {
         })
     });
 }
-
+// Function to add a new department
 function addDepartment() {
     inquirer.prompt([{
         name: 'name',
@@ -294,7 +299,7 @@ function addDepartment() {
         });
     });
 }
-
+// Function to view all departments
 function viewAllDepartments(){
     pool.query("SELECT * FROM department", (err, results) => {
         console.log("\n");
@@ -302,7 +307,7 @@ function viewAllDepartments(){
         loadMainMenu();
     });
 }
-
+// Function to remove a department
 function removeDepartment() {
     let sqlQuery = `SELECT * FROM department`;
     pool.query(sqlQuery, (err, results) => {
@@ -331,7 +336,7 @@ function removeDepartment() {
     });
 
 }
-
+// Function to view the utilized budget by department
 function viewUtilizedBudgetByDepartment() {
     let sqlQuery = `SELECT department.id, department.name, SUM(role.salary) AS utilized_budget
     FROM employee JOIN role on employee.role_id = role.id
@@ -344,7 +349,7 @@ function viewUtilizedBudgetByDepartment() {
         loadMainMenu();
     });
 }
-
+// Function to view all roles
 function viewRoles() {
     let sqlQuery = `SELECT * FROM role`;
     pool.query(sqlQuery, (err, results) => {
@@ -353,7 +358,7 @@ function viewRoles() {
         loadMainMenu();
     });
 }
-
+// Function to add a new role
 function addRoles() {
     let sqlQuery = `SELECT * FROM department`;
     pool.query(sqlQuery, (err, results) => {
@@ -389,7 +394,7 @@ function addRoles() {
         });
     });
 }
-
+// Function to remove a role
 function removeRole() {
     let sqlQuery = `SELECT * FROM role`;
     pool.query(sqlQuery, (err, results) => {
@@ -418,7 +423,7 @@ function removeRole() {
         });
     });
 }
-
+// Function to load the main menu and handle user choices
 function loadMainMenu() {
     inquirer.prompt([{
         type: 'list',
@@ -535,11 +540,11 @@ function loadMainMenu() {
         }
     });
 }
-
+// Function to initialize the application
 function init() {
     console.log("Welcome to the Employee Management System");
     loadMainMenu();
 }
 
-
+// Start the application
 init()
