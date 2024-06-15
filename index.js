@@ -1,6 +1,6 @@
 const inquirer = require('inquirer'); // For interactive command-line user interfaces
 const { Pool } = require('pg'); // For interacting with the PostgreSQL database
-require('dotenv').config() // For loading environment variables from a .env file
+require('dotenv').config(); // For loading environment variables from a .env file
 
 
 //// Create a new pool of connections to the PostgreSQL database using environment variables for configuration
@@ -8,13 +8,14 @@ const pool = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATEBASE,
+    database: process.env.DB_DATABASE,
     port: 5432
     
 },
     // Callback to indicate successful connection to the database
     console.log("Connected to the database")
 );
+
 // Establish a connection to the database
 pool.connect();
 
@@ -33,6 +34,7 @@ function viewEmployees() {
              JOIN role on employee.role_id = role.id
              JOIN department on role.department_id = department.id
              JOIN employee manager on employee.manager_id = manager.id;`;
+    // Execute the SQL query using the connection pool
     pool.query(sqlQuery, (err, results) => {
         console.log("\n");
         console.table(results.rows)// Function to view all employees
@@ -112,6 +114,7 @@ function viewEmployeesByMananger() {
 }
 // Function to add a new employee
 function addEmployee() {
+    // Prompt the user to enter the first and last name of the new employee
     inquirer.prompt([
         {
         name: "first_name",
@@ -122,13 +125,14 @@ function addEmployee() {
             message: "Enter the employee's last name"
         }
     ]).then(({first_name, last_name}) => {
+        // After receiving the first and last name, query the database for all roles
         pool.query("SELECT * FROM role", (err, results) => {
-
+            // Map the results to create an array of role choices for the inquirer prompt
             let roleChoices = results.rows.map(({id, title}) => ({
                 name: title,
                 value: id
             }));
-
+            // Prompt the user to select the role for the new employee from the list of roles
             inquirer.prompt([
                 {
                 type: 'list',
@@ -137,13 +141,15 @@ function addEmployee() {
                 choices: roleChoices
                 }
             ]).then(({roleId}) => {
+                // After receiving the role, query the database for all employees to select a manager
                 pool.query("SELECT * FROM employee", (err, results) => {
+                    // Map the results to create an array of manager choices for the inquirer prompt
                     let managerChoices = results.rows.map(
                         ({ id, first_name, last_name}) =>({
                         name: `${first_name} ${last_name}`,
                         value: id,
                     }));
-
+                    // Prompt the user to select the manager for the new employee from the list of employees
                     inquirer.prompt([{
                         type:'list',
                         name: 'managerId',
@@ -152,19 +158,23 @@ function addEmployee() {
                     },
                     ])
                     .then(({managerId}) => {
+                        // Create an employee object with the collected information
                         let employee = {
                             manager_id: managerId,
                             role_id: roleId,
                             first_name: first_name,
                             last_name: last_name,
                         };
+                        // SQL query to insert the new employee into the database
                         let sqlQuery = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
                         VALUES ($1, $2, $3, $4)`;
                         pool.query(sqlQuery, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, results) => {
                             if (err) {
                                 console.log(err);
                             }
+                             // Log a message indicating the employee was added successfully
                             console.log(`Adding employee: ${employee.first_name} ${employee.last_name}...`)
+                            // Reload the main menu after adding the employee
                             loadMainMenu();
                         });
                         
@@ -535,7 +545,7 @@ function loadMainMenu() {
         else if ( choice === "REMOVE_ROLE"){
             removeRole();
         }
-        else {
+        else { 
             quit();
         }
     });

@@ -7,7 +7,7 @@ Employee Tracker is a command-line application designed to manage a company's em
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Screenshots](#screenshots)
+- [Video Walkthrough](#video-walkthrough)
 - [License](#license)
 - [Credits](#credits)
 
@@ -96,8 +96,9 @@ Employee Tracker is a command-line application designed to manage a company's em
 - Add roles
 - Remove roles
 
-## Screenshots
+## Video Walkthrough
 
+Link: https://drive.google.com/file/d/1gOpxbNxXQsQtemvZ6pWNdNoeSvte5UIP/view
 ## License
 
 This project is licensed under the MIT License.
